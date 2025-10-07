@@ -1,0 +1,115 @@
+DANH SÁCH CHỨC NĂNG WEBSITE BÁN QUẦN ÁO
+==========================================
+
+1. QUẢN LÝ NGƯỜI DÙNG
+   - Đăng ký tài khoản
+   - Đăng nhập/Đăng xuất
+   - Quản lý thông tin cá nhân
+   - Đổi mật khẩu
+   - Quên mật khẩu
+   - Xác thực email
+   - Phân quyền người dùng (Admin, User)
+
+2. QUẢN LÝ SẢN PHẨM
+   - Hiển thị danh sách sản phẩm
+   - Tìm kiếm sản phẩm
+   - Lọc sản phẩm theo:
+     + Danh mục (áo, quần, váy, phụ kiện...)
+     + Thương hiệu
+     + Giá tiền
+     + Kích thước
+     + Màu sắc
+     + Giới tính
+   - Chi tiết sản phẩm
+   - Đánh giá và bình luận sản phẩm
+   - Sản phẩm yêu thích
+   - So sánh sản phẩm
+   - Sản phẩm liên quan
+
+3. QUẢN LÝ GIỎ HÀNG
+   - Thêm sản phẩm vào giỏ hàng
+   - Cập nhật số lượng
+   - Xóa sản phẩm khỏi giỏ hàng
+   - Lưu giỏ hàng tạm thời
+   - Tính tổng tiền
+   - Áp dụng mã giảm giá
+
+4. THANH TOÁN
+   - Chọn phương thức thanh toán:
+     + Thanh toán khi nhận hàng (COD)
+     + Chuyển khoản ngân hàng
+     + Ví điện tử (Momo, ZaloPay, VNPay...)
+   - Nhập thông tin giao hàng
+   - Xác nhận đơn hàng
+   - Theo dõi trạng thái đơn hàng
+
+5. QUẢN LÝ ĐỊA CHỈ
+   - Thêm/sửa/xóa địa chỉ giao hàng
+   - Đặt địa chỉ mặc định
+   - Tính phí vận chuyển theo địa chỉ
+
+6. MÃ GIẢM GIÁ
+   - Áp dụng mã giảm giá
+   - Mã giảm giá theo:
+     + Phần trăm
+   - Điều kiện áp dụng mã
+
+7. THÔNG BÁO
+   - Thông báo đơn hàng mới
+   - Thông báo thay đổi trạng thái đơn hàng
+   - Thông báo khuyến mãi
+   - Thông báo sản phẩm mới
+
+8. ADMIN PANEL
+   - Quản lý sản phẩm (CRUD)
+   - Quản lý danh mục
+   - Quản lý đơn hàng
+   - Quản lý người dùng
+   - Quản lý mã giảm giá
+   - Thống kê doanh thu
+   - Quản lý kho hàng
+   - Quản lý banner/quảng cáo
+
+9. TÍNH NĂNG BỔ SUNG
+   - Lịch sử mua hàng
+
+10. BẢO MẬT
+    - Xác thực JWT
+    - Mã hóa mật khẩu
+    - Rate limiting
+    - CORS configuration
+    - Input validation
+    - SQL injection prevention
+
+
+
+GỢI Ý THỰC HIỆN THEO THỨ TỰ ƯU TIÊN:
+=====================================
+Phase 1 (MVP - Minimum Viable Product):
+- Đăng ký/Đăng nhập
+- Hiển thị sản phẩm cơ bản
+- Giỏ hàng đơn giản
+- Thanh toán COD
+- Admin quản lý sản phẩm cơ bản
+
+Phase 2:
+- Tìm kiếm và lọc sản phẩm
+- Chi tiết sản phẩm
+- Quản lý địa chỉ
+- Thanh toán online
+- Thông báo
+
+Phase 3:
+- Đánh giá sản phẩm
+- Mã giảm giá
+- Thống kê admin
+- Tính năng nâng cao
+
+CÔNG NGHỆ SỬ DỤNG:
+==================
+Frontend: React.js, Redux Toolkit, Material-UI/Ant Design
+Backend: Node.js, Express.js, mysql
+Authentication: JWT
+Payment: VNPay
+File Upload: Multer
+Email: Nodemailer
