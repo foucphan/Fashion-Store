@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./config/database');
 const config = require('./config/config');
+const emailService = require('./utils/emailService');
 
 const app = express();
 
@@ -51,6 +52,16 @@ app.listen(PORT, async () => {
   
   // Test database connection
   await testConnection();
+  
+  // Test email service connection
+  console.log('📧 Testing email service...');
+  const emailConnected = await emailService.verifyConnection();
+  if (emailConnected) {
+    console.log('✅ Email service is ready');
+  } else {
+    console.log('❌ Email service connection failed - check EMAIL_USER and EMAIL_PASS in .env');
+  }
 });
 
 module.exports = app;
+

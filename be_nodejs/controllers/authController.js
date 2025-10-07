@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { pool } = require('../config/database');
 const { generateToken } = require('../middleware/auth');
 const config = require('../config/config');
+const emailService = require('../utils/emailService');
 
 class AuthController {
   // Đăng ký
@@ -176,15 +177,25 @@ class AuthController {
         });
       }
 
-      // Tạo reset token (trong thực tế sẽ gửi email)
+      // Tạo reset token
       const resetToken = generateToken({ 
         id: users[0].id, 
         email: users[0].email,
         type: 'password_reset'
       });
 
-      // TODO: Gửi email với reset token
-      console.log(`Reset token for ${email}: ${resetToken}`);
+      // Gửi email khôi phục mật khẩu
+      const emailResult = await emailService.sendPasswordResetEmail(email, resetToken);
+      
+      if (!emailResult.success) {
+        console.error('Failed to send password reset email:', emailResult.error);
+        return res.status(500).json({
+          success: false,
+          message: 'Không thể gửi email. Vui lòng thử lại sau.'
+        });
+      }
+
+      console.log(`Password reset email sent to ${email}`);
 
       res.json({
         success: true,
