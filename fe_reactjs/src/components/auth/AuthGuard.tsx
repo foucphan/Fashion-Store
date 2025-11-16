@@ -8,11 +8,11 @@ interface AuthGuardProps {
   requireAuth?: boolean;
 }
 
-export const AuthGuard: React.FC<AuthGuardProps> = ({ 
-  children, 
-  requireAuth = true 
+export const AuthGuard: React.FC<AuthGuardProps> = ({
+  children,
+  requireAuth = true
 }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,19 +20,24 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
       if (requireAuth && !isAuthenticated) {
         navigate('/login');
       } else if (!requireAuth && isAuthenticated) {
-        navigate('/');
+        // Redirect based on role after login
+        if (user?.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
       }
     }
-  }, [isAuthenticated, isLoading, requireAuth, navigate]);
+  }, [isAuthenticated, isLoading, requireAuth, navigate, user]);
 
   if (isLoading) {
     return (
-      <Box 
-        sx={{ 
-          display: 'flex', 
+      <Box
+        sx={{
+          display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center', 
-          justifyContent: 'center', 
+          alignItems: 'center',
+          justifyContent: 'center',
           minHeight: '100vh',
           gap: 2
         }}

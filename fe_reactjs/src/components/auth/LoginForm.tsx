@@ -60,6 +60,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     try {
       setError('');
       await login(data);
+      // Redirect will be handled by AuthGuard based on user role
+      // Admin users will be redirected to /admin
+      // Regular users will be redirected to /
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng nhập thất bại');
     }
@@ -99,7 +102,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           <Typography component="h1" variant="h4" gutterBottom sx={{ color: 'white', textAlign: 'center' }}>
             Đăng Nhập
           </Typography>
-          
+
           <Typography variant="body2" sx={{ mb: 3, color: 'rgba(255,255,255,0.8)', textAlign: 'center' }}>
             Chào mừng bạn quay trở lại!
           </Typography>

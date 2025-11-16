@@ -6,9 +6,10 @@ import {
   Typography,
   Avatar,
   IconButton,
-  Alert,
   CircularProgress,
   Divider,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import {
   PhotoCamera,
@@ -91,7 +92,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -136,17 +137,27 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         </Typography>
       </Box>
 
-      {/* Alerts */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+      {/* Snackbar notifications */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MuiAlert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
           {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+        </MuiAlert>
+      </Snackbar>
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={() => setSuccess(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MuiAlert onClose={() => setSuccess(null)} severity="success" sx={{ width: '100%' }}>
           {success}
-        </Alert>
-      )}
+        </MuiAlert>
+      </Snackbar>
 
       {/* Avatar Section */}
       <Box sx={{ mb: 4, textAlign: 'center' }}>

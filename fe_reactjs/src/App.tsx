@@ -20,6 +20,16 @@ import { ProfilePage } from './pages/ProfilePage';
 import { WarrantyPage } from './pages/WarrantyPage';
 import { AboutPage } from './pages/AboutPage';
 import { VNPayReturnPage } from './pages/VNPayReturnPage';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { AdminRoute } from './components/auth/AdminRoute';
+import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminProducts } from './pages/admin/AdminProducts';
+import { AdminOrders } from './pages/admin/AdminOrders';
+import { AdminUsers } from './pages/admin/AdminUsers';
+import { AdminCategories } from './pages/admin/AdminCategories';
+import { AdminBrands } from './pages/admin/AdminBrands';
+import { AdminInventory } from './pages/admin/AdminInventory';
+import { AdminAnalytics } from './pages/admin/AdminAnalytics';
 
 // Tạo theme Material-UI
 const theme = createTheme({
@@ -128,6 +138,25 @@ function App() {
                     </ProtectedRoute>
                   } />
                   <Route path="payment/vnpay/return" element={<VNPayReturnPage />} />
+                </Route>
+
+                {/* Admin routes */}
+                <Route
+                  path="/admin"
+                  element={
+                    <AdminRoute>
+                      <AdminLayout />
+                    </AdminRoute>
+                  }
+                >
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="brands" element={<AdminBrands />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
                 </Route>
 
                 {/* Catch all route */}

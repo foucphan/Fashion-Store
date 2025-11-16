@@ -4,10 +4,11 @@ import {
   TextField,
   Button,
   Typography,
-  Alert,
   CircularProgress,
   IconButton,
   InputAdornment,
+  Snackbar,
+  Alert as MuiAlert,
 } from '@mui/material';
 import {
   Visibility,
@@ -85,7 +86,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
+
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -99,7 +100,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
 
       await profileService.changePassword(formData);
       setSuccess('Đổi mật khẩu thành công');
-      
+
       // Reset form
       setFormData({
         current_password: '',
@@ -131,17 +132,27 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
         </Typography>
       </Box>
 
-      {/* Alerts */}
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
+      {/* Snackbar notifications */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MuiAlert onClose={() => setError(null)} severity="error" sx={{ width: '100%' }}>
           {error}
-        </Alert>
-      )}
-      {success && (
-        <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+        </MuiAlert>
+      </Snackbar>
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={() => setSuccess(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MuiAlert onClose={() => setSuccess(null)} severity="success" sx={{ width: '100%' }}>
           {success}
-        </Alert>
-      )}
+        </MuiAlert>
+      </Snackbar>
 
       {/* Form Fields */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
