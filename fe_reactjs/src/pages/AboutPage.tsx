@@ -32,20 +32,20 @@ export const AboutPage: React.FC = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header Section */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography variant="h3" component="h1" gutterBottom sx={{
-          color: '#1976d2',
+        <Typography variant="h3" component="h1" gutterBottom sx={{ 
+          color: '#1976d2', 
           fontWeight: 'bold',
           mb: 2
         }}>
           Giới Thiệu Fashion Store
         </Typography>
-        <Typography variant="h6" sx={{
+        <Typography variant="h6" sx={{ 
           color: 'text.secondary',
           maxWidth: '800px',
           mx: 'auto',
           lineHeight: 1.6
         }}>
-          Chúng tôi là cửa hàng thời trang hàng đầu, cam kết mang đến những sản phẩm chất lượng cao
+          Chúng tôi là cửa hàng thời trang hàng đầu, cam kết mang đến những sản phẩm chất lượng cao 
           và dịch vụ khách hàng tốt nhất.
         </Typography>
       </Box>
@@ -61,13 +61,13 @@ export const AboutPage: React.FC = () => {
               </Typography>
             </Box>
             <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.secondary' }}>
-              Chúng tôi cam kết mang đến những sản phẩm thời trang chất lượng cao,
-              phù hợp với mọi lứa tuổi và phong cách. Mục tiêu của chúng tôi là
+              Chúng tôi cam kết mang đến những sản phẩm thời trang chất lượng cao, 
+              phù hợp với mọi lứa tuổi và phong cách. Mục tiêu của chúng tôi là 
               giúp khách hàng tự tin và tỏa sáng trong mọi hoàn cảnh.
             </Typography>
           </CardContent>
         </Card>
-
+        
         <Card elevation={3} sx={{ flex: 1 }}>
           <CardContent sx={{ p: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -77,8 +77,8 @@ export const AboutPage: React.FC = () => {
               </Typography>
             </Box>
             <Typography variant="body1" sx={{ lineHeight: 1.8, color: 'text.secondary' }}>
-              Trở thành thương hiệu thời trang hàng đầu Việt Nam, được khách hàng
-              tin tưởng và yêu mến. Chúng tôi hướng tới việc mở rộng ra thị trường
+              Trở thành thương hiệu thời trang hàng đầu Việt Nam, được khách hàng 
+              tin tưởng và yêu mến. Chúng tôi hướng tới việc mở rộng ra thị trường 
               quốc tế trong tương lai gần.
             </Typography>
           </CardContent>
@@ -121,10 +121,10 @@ export const AboutPage: React.FC = () => {
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, flexWrap: 'wrap', gap: 3 }}>
           {[
-            { name: 'Phan Dinh Can', position: 'Giám đốc điều hành', avatar: 'A' },
-            { name: 'Can Dinh Phan', position: 'Giám đốc marketing', avatar: 'B' },
-            { name: 'Phan Can Dinh', position: 'Trưởng phòng thiết kế', avatar: 'C' },
-            { name: 'Dinh Can Phan', position: 'Trưởng phòng CSKH', avatar: 'D' },
+            { name: 'Nguyễn Văn A', position: 'Giám đốc điều hành', avatar: 'A' },
+            { name: 'Trần Thị B', position: 'Giám đốc marketing', avatar: 'B' },
+            { name: 'Lê Văn C', position: 'Trưởng phòng thiết kế', avatar: 'C' },
+            { name: 'Phạm Thị D', position: 'Trưởng phòng CSKH', avatar: 'D' },
           ].map((member, index) => (
             <Card elevation={2} key={index} sx={{ flex: '1 1 250px', textAlign: 'center' }}>
               <CardContent sx={{ p: 3 }}>
@@ -229,7 +229,7 @@ export const AboutPage: React.FC = () => {
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                 Địa chỉ
               </Typography>
-              <Typography variant="body1">180A/3 đường Nguyễn Lương Bằng, phường Đống Đa, TP Hà Nội</Typography>
+              <Typography variant="body1">123 Đường ABC, Quận 1, TP.HCM</Typography>
             </Box>
           </Box>
         </Box>

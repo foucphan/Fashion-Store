@@ -1,36 +1,35 @@
-import React from 'react';
-import { Container, Typography, Box, Button, Card, CardContent, CardMedia } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Container, Typography, Box, Button, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Product } from '../types/product';
+import { productService } from '../services/productService';
+import { ProductGrid } from '../components/product/ProductGrid';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: 'Áo Polo Nam',
-      price: 299000,
-      image: 'https://via.placeholder.com/300x400',
-    },
-    {
-      id: 2,
-      name: 'Váy Dài Nữ',
-      price: 599000,
-      image: 'https://via.placeholder.com/300x400',
-    },
-    {
-      id: 3,
-      name: 'Quần Jean Nam',
-      price: 799000,
-      image: 'https://via.placeholder.com/300x400',
-    },
-    {
-      id: 4,
-      name: 'Áo Khoác Nữ',
-      price: 1299000,
-      image: 'https://via.placeholder.com/300x400',
-    },
-  ];
+  useEffect(() => {
+    // Chỉ load sản phẩm, không xóa cache
+    loadFeaturedProducts();
+  }, []);
+
+  const loadFeaturedProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await productService.getFeaturedProducts(8);
+      setFeaturedProducts(response.data.products);
+    } catch (error) {
+      console.error('Error loading featured products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProductClick = (product: Product) => {
+    navigate(`/products/${product.id}`);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -72,53 +71,29 @@ export const HomePage: React.FC = () => {
 
       {/* Featured Products */}
       <Box sx={{ mb: 6 }}>
-        <Typography variant="h4" component="h2" gutterBottom sx={{ textAlign: 'center', mb: 4 }}>
-          Sản Phẩm Nổi Bật
-        </Typography>
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(4, 1fr)',
-            },
-            gap: 3,
-          }}
-        >
-          {featuredProducts.map((product) => (
-            <Card
-              key={product.id}
-              sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 4,
-                },
-              }}
-              onClick={() => navigate(`/products/${product.id}`)}
-            >
-              <CardMedia
-                component="img"
-                height="250"
-                image={product.image}
-                alt={product.name}
-              />
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" component="h3" gutterBottom>
-                  {product.name}
-                </Typography>
-                <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold' }}>
-                  {product.price.toLocaleString('vi-VN')} ₫
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h4" component="h2">
+            Sản Phẩm Nổi Bật
+          </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => navigate('/products')}
+            sx={{ textTransform: 'none' }}
+          >
+            Xem tất cả
+          </Button>
         </Box>
+        
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <ProductGrid
+            products={featuredProducts}
+            onViewDetails={handleProductClick}
+          />
+        )}
       </Box>
 
       {/* Features Section */}

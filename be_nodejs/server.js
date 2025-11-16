@@ -14,8 +14,25 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`📡 ${req.method} ${req.url}`);
+  console.log('📡 Headers:', req.headers);
+  next();
+});
+
+// Serve static files
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/categories', require('./routes/category'));
+app.use('/api/brands', require('./routes/brand'));
+app.use('/api/products', require('./routes/product'));
+app.use('/api/cart', require('./routes/cart'));
+app.use('/api/profile', require('./routes/profile'));
+app.use('/api/orders', require('./routes/order'));
+app.use('/api/vnpay', require('./routes/vnpay'));
 
 // Health check
 app.get('/api/health', (req, res) => {

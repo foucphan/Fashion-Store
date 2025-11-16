@@ -5,7 +5,7 @@ import { config } from '../config/environment';
 
 const API_BASE_URL = config.API_URL;
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -16,23 +16,50 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    console.log('🚀 API Request - URL:', config.url);
+    console.log('🚀 API Request - Method:', config.method);
+    console.log('🚀 API Request - Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'null');
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('✅ API Request - Authorization header set');
+    } else {
+      console.warn('⚠️ API Request - No token found in localStorage');
     }
     return config;
   },
   (error) => {
+    console.error('❌ API Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
 // Add response interceptor to handle token expiration
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response - Status:', response.status, 'URL:', response.config.url);
+    return response;
+  },
   (error) => {
+    console.log('❌ API Response Error - Status:', error.response?.status);
+    console.log('❌ API Response Error - URL:', error.config?.url);
+    console.log('❌ API Response Error - Message:', error.message);
+    console.log('❌ API Response Error - Response data:', error.response?.data);
+
     if (error.response?.status === 401) {
+      console.warn('🔐 Token expired or invalid, clearing token and redirecting to login');
+      console.warn('🔐 Error details:', error.response?.data);
+
       localStorage.removeItem('token');
-      window.location.href = '/login';
+
+      // Dispatch custom event to notify AuthContext
+      window.dispatchEvent(new CustomEvent('auth:logout'));
+
+      // Small delay before redirect to allow context to update
+      setTimeout(() => {
+        console.log('🔐 Redirecting to login page...');
+        window.location.href = '/auth';
+      }, 100);
     }
     return Promise.reject(error);
   }

@@ -20,7 +20,7 @@ export const Layout: React.FC = () => {
       >
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
-            <p>&copy; 2025 Fashion Store. Tất cả quyền được bảo lưu.</p>
+            <p>&copy; 2024 Fashion Store. Tất cả quyền được bảo lưu.</p>
           </Box>
         </Container>
       </Box>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Container } from '@mui/material';
+import { Box, Container, IconButton, Tooltip } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Home } from '@mui/icons-material';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
@@ -8,10 +10,12 @@ type AuthMode = 'login' | 'register' | 'forgot-password';
 
 export const AuthPage: React.FC = () => {
   const [mode, setMode] = useState<AuthMode>('login');
+  const navigate = useNavigate();
 
   const switchToLogin = () => setMode('login');
   const switchToRegister = () => setMode('register');
   const switchToForgotPassword = () => setMode('forgot-password');
+  const goToHome = () => navigate('/');
 
   return (
     <Box
@@ -51,6 +55,30 @@ export const AuthPage: React.FC = () => {
           filter: 'blur(70px)',
         }}
       />
+      {/* Home Button */}
+      <Tooltip title="Quay lại trang chủ">
+        <IconButton
+          onClick={goToHome}
+          sx={{
+            position: 'absolute',
+            top: { xs: 16, md: 24 },
+            left: { xs: 16, md: 24 },
+            zIndex: 10,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              transform: 'scale(1.05)',
+            },
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <Home />
+        </IconButton>
+      </Tooltip>
+
       <Container maxWidth="md" sx={{ position: 'relative', width: '100%' }}>
         {mode === 'login' && (
           <LoginForm

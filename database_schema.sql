@@ -272,32 +272,3 @@ CREATE INDEX idx_cart_user ON cart(user_id);
 CREATE INDEX idx_notifications_user ON notifications(user_id);
 CREATE INDEX idx_notifications_read ON notifications(is_read);
 
--- INSERT DỮ LIỆU MẪU
--- ==================
-
--- Thêm admin mặc định
-INSERT INTO users (username, email, password, full_name, role) VALUES 
-('admin', 'admin@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin');
-
--- Thêm danh mục mẫu
-INSERT INTO categories (name, slug, description) VALUES 
-('Áo Nam', 'ao-nam', 'Các loại áo dành cho nam giới'),
-('Áo Nữ', 'ao-nu', 'Các loại áo dành cho nữ giới'),
-('Quần Nam', 'quan-nam', 'Các loại quần dành cho nam giới'),
-('Quần Nữ', 'quan-nu', 'Các loại quần dành cho nữ giới'),
-('Váy', 'vay', 'Các loại váy dành cho nữ giới'),
-('Phụ Kiện', 'phu-kien', 'Các phụ kiện thời trang');
-
--- Thêm thương hiệu mẫu
-INSERT INTO brands (name, slug, description) VALUES 
-('Nike', 'nike', 'Thương hiệu thể thao hàng đầu thế giới'),
-('Adidas', 'adidas', 'Thương hiệu thể thao nổi tiếng'),
-('Uniqlo', 'uniqlo', 'Thương hiệu thời trang Nhật Bản'),
-('Zara', 'zara', 'Thương hiệu thời trang Tây Ban Nha'),
-('H&M', 'hm', 'Thương hiệu thời trang Thụy Điển');
-
--- Thêm mã giảm giá mẫu
-INSERT INTO coupons (code, name, type, value, min_order_amount, start_date, end_date) VALUES 
-('WELCOME10', 'Chào mừng khách hàng mới', 'percentage', 10.00, 500000, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY)),
-('FREESHIP', 'Miễn phí vận chuyển', 'free_shipping', 0, 300000, NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY)),
-('SAVE50K', 'Tiết kiệm 50k', 'fixed_amount', 50000, 1000000, NOW(), DATE_ADD(NOW(), INTERVAL 7 DAY));

@@ -33,6 +33,8 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCart } from '../../contexts/CartContext';
+import { SearchBar } from '../search/SearchBar';
 
 export const Header: React.FC = () => {
   const theme = useTheme();
@@ -40,6 +42,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, isAuthenticated } = useAuth();
+  const { cart } = useCart();
   
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -92,16 +95,16 @@ export const Header: React.FC = () => {
         <List>
           {navigationItems.map((item) => (
             <ListItem
-              button
               key={item.path}
               onClick={() => {
                 navigate(item.path);
                 setMobileMenuOpen(false);
               }}
-              selected={location.pathname === item.path}
               sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                cursor: 'pointer',
+                backgroundColor: location.pathname === item.path ? 'rgba(25, 118, 210, 0.1)' : 'transparent',
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.05)',
                 },
               }}
             >
@@ -149,7 +152,7 @@ export const Header: React.FC = () => {
           </Typography>
 
           {!isMobile && (
-            <Box sx={{ flexGrow: 1, display: 'flex', ml: 4, flexWrap: 'wrap' }}>
+            <Box sx={{ flexGrow: 1, display: 'flex', ml: 4, flexWrap: 'wrap', alignItems: 'center' }}>
               {navigationItems.map((item) => (
                 <Button
                   key={item.path}
@@ -170,12 +173,20 @@ export const Header: React.FC = () => {
                   {item.label}
                 </Button>
               ))}
+              
+              {/* Search Bar */}
+              <Box sx={{ ml: 2, minWidth: 300, maxWidth: 400 }}>
+                <SearchBar
+                  placeholder="Tìm kiếm sản phẩm..."
+                  size="small"
+                />
+              </Box>
             </Box>
           )}
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton color="inherit" onClick={() => navigate('/cart')}>
-              <Badge badgeContent={0} color="error">
+              <Badge badgeContent={cart.total_items} color="error">
                 <ShoppingCart />
               </Badge>
             </IconButton>

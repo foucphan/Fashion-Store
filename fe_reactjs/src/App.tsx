@@ -2,14 +2,24 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { AuthProvider } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
 import { Layout } from './components/layout/Layout';
 import { AuthPage } from './components/auth/AuthPage';
 import { ResetPasswordForm } from './components/auth/ResetPasswordForm';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { AuthGuard } from './components/auth/AuthGuard';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { HomePage } from './pages/HomePage';
+import { ProductsPage } from './pages/ProductsPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
+import { SearchPage } from './pages/SearchPage';
+import { CartPage } from './pages/CartPage';
+import { CheckoutPage } from './pages/CheckoutPage';
+import { OrdersPage } from './pages/OrdersPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { WarrantyPage } from './pages/WarrantyPage';
 import { AboutPage } from './pages/AboutPage';
+import { VNPayReturnPage } from './pages/VNPayReturnPage';
 
 // Tạo theme Material-UI
 const theme = createTheme({
@@ -49,47 +59,82 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <AuthProvider>
-          <Router>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<AuthPage />} />
-              <Route path="/register" element={<AuthPage />} />
-              <Route path="/forgot-password" element={<AuthPage />} />
-              <Route path="/reset-password" element={<ResetPasswordForm />} />
-              
-              {/* Protected routes with layout */}
-              <Route path="/" element={<Layout />}>
-                <Route index element={<HomePage />} />
-                <Route path="products" element={<div>Products Page - Coming Soon</div>} />
-                <Route path="search" element={<div>Search Page - Coming Soon</div>} />
-                <Route path="warranty" element={<WarrantyPage />} />
-                <Route path="about" element={<AboutPage />} />
-                <Route path="cart" element={
-                  <ProtectedRoute>
-                    <div>Cart Page - Coming Soon</div>
-                  </ProtectedRoute>
+          <CartProvider>
+            <Router>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={
+                  <AuthGuard requireAuth={false}>
+                    <AuthPage />
+                  </AuthGuard>
                 } />
-                <Route path="wishlist" element={
-                  <ProtectedRoute>
-                    <div>Wishlist Page - Coming Soon</div>
-                  </ProtectedRoute>
+                <Route path="/register" element={
+                  <AuthGuard requireAuth={false}>
+                    <AuthPage />
+                  </AuthGuard>
                 } />
-                <Route path="profile" element={
-                  <ProtectedRoute>
-                    <div>Profile Page - Coming Soon</div>
-                  </ProtectedRoute>
+                <Route path="/forgot-password" element={
+                  <AuthGuard requireAuth={false}>
+                    <AuthPage />
+                  </AuthGuard>
                 } />
-                <Route path="settings" element={
-                  <ProtectedRoute>
-                    <div>Settings Page - Coming Soon</div>
-                  </ProtectedRoute>
+                <Route path="/reset-password" element={
+                  <AuthGuard requireAuth={false}>
+                    <ResetPasswordForm />
+                  </AuthGuard>
                 } />
-              </Route>
-              
-              {/* Catch all route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </Router>
+
+                {/* Protected routes with layout */}
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<HomePage />} />
+                  <Route path="products" element={<ProductsPage />} />
+                  <Route path="products/:id" element={<ProductDetailPage />} />
+                  <Route path="search" element={<SearchPage />} />
+                  <Route path="warranty" element={<WarrantyPage />} />
+                  <Route path="about" element={<AboutPage />} />
+                  <Route path="cart" element={
+                    <ProtectedRoute>
+                      <CartPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="checkout" element={
+                    <ProtectedRoute>
+                      <CheckoutPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="orders" element={
+                    <ProtectedRoute>
+                      <OrdersPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="orders/:id" element={
+                    <ProtectedRoute>
+                      <div>Order Detail Page - Coming Soon</div>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="wishlist" element={
+                    <ProtectedRoute>
+                      <div>Wishlist Page - Coming Soon</div>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="profile" element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="settings" element={
+                    <ProtectedRoute>
+                      <div>Settings Page - Coming Soon</div>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="payment/vnpay/return" element={<VNPayReturnPage />} />
+                </Route>
+
+                {/* Catch all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Router>
+          </CartProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
