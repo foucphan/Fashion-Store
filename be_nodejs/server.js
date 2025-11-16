@@ -33,6 +33,7 @@ app.use('/api/cart', require('./routes/cart'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/orders', require('./routes/order'));
 app.use('/api/vnpay', require('./routes/vnpay'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => {
