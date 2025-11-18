@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const XLSX = require('xlsx');
 
 class AdminController {
   // Lấy thống kê tổng quan
@@ -19,7 +20,7 @@ class AdminController {
         'SELECT COUNT(*) as total FROM users WHERE role = "user"'
       );
 
-      // Tổng doanh thu (từ các đơn hàng đã hoàn thành)
+      // Tổng doanh thu (từ các đơn hàng đã hoàn thành và đã thanh toán)
       const [revenueResult] = await pool.execute(
         `SELECT COALESCE(SUM(final_amount), 0) as total 
          FROM orders 
@@ -37,6 +38,66 @@ class AdminController {
       });
     } catch (error) {
       console.error('Get admin stats error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi server'
+      });
+    }
+  }
+
+  // Lấy dữ liệu doanh thu theo thời gian (cho biểu đồ)
+  async getRevenueChart(req, res) {
+    try {
+      const { period = '30' } = req.query; // Mặc định 30 ngày gần nhất
+      const days = parseInt(period) || 30;
+
+      // Lấy doanh thu theo ngày từ các đơn hàng đã hoàn thành và đã thanh toán
+      const [revenueData] = await pool.execute(`
+        SELECT 
+          DATE(created_at) as date,
+          COALESCE(SUM(final_amount), 0) as revenue,
+          COUNT(*) as order_count
+        FROM orders
+        WHERE order_status = 'completed' 
+          AND payment_status = 'paid'
+          AND created_at >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        GROUP BY DATE(created_at)
+        ORDER BY date ASC
+      `, [days]);
+
+      // Tạo mảng đầy đủ các ngày (kể cả ngày không có đơn hàng)
+      const result = [];
+      const today = new Date();
+      const startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - days);
+
+      // Tạo map từ dữ liệu database
+      const revenueMap = {};
+      revenueData.forEach(item => {
+        const dateStr = new Date(item.date).toISOString().split('T')[0];
+        revenueMap[dateStr] = {
+          revenue: parseFloat(item.revenue) || 0,
+          orderCount: item.order_count || 0
+        };
+      });
+
+      // Tạo mảng đầy đủ các ngày
+      for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+        const dateStr = d.toISOString().split('T')[0];
+        result.push({
+          date: dateStr,
+          dateLabel: d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
+          revenue: revenueMap[dateStr]?.revenue || 0,
+          orderCount: revenueMap[dateStr]?.orderCount || 0
+        });
+      }
+
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error) {
+      console.error('Get revenue chart error:', error);
       res.status(500).json({
         success: false,
         message: 'Lỗi server'
@@ -418,6 +479,303 @@ class AdminController {
       });
     } catch (error) {
       console.error('Delete user error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi server'
+      });
+    }
+  }
+
+  // Báo cáo tồn kho
+  async getInventoryReport(req, res) {
+    try {
+      const { date } = req.query; // Format: YYYY-MM-DD hoặc YYYY-MM hoặc YYYY
+
+      let dateCondition = '';
+      let params = [];
+
+      if (date) {
+        if (date.length === 4) {
+          // Năm
+          dateCondition = 'WHERE YEAR(pa.updated_at) = ?';
+          params.push(date);
+        } else if (date.length === 7) {
+          // Tháng
+          dateCondition = 'WHERE DATE_FORMAT(pa.updated_at, "%Y-%m") = ?';
+          params.push(date);
+        } else if (date.length === 10) {
+          // Ngày
+          dateCondition = 'WHERE DATE(pa.updated_at) = ?';
+          params.push(date);
+        }
+      }
+
+      const [inventory] = await pool.execute(`
+        SELECT 
+          p.id as product_id,
+          p.name as product_name,
+          p.sku as product_sku,
+          pa.size,
+          pa.color,
+          pa.stock_quantity,
+          pa.sku_variant,
+          p.price,
+          p.sale_price,
+          pa.updated_at
+        FROM product_attributes pa
+        LEFT JOIN products p ON pa.product_id = p.id
+        ${dateCondition}
+        ORDER BY p.name ASC, pa.size ASC, pa.color ASC
+      `, params);
+
+      res.json({
+        success: true,
+        data: inventory.map(item => ({
+          product_id: item.product_id,
+          product_name: item.product_name,
+          product_sku: item.product_sku,
+          size: item.size || '-',
+          color: item.color || '-',
+          stock_quantity: item.stock_quantity,
+          sku_variant: item.sku_variant || '-',
+          price: parseFloat(item.price),
+          sale_price: item.sale_price ? parseFloat(item.sale_price) : null,
+          updated_at: item.updated_at,
+        }))
+      });
+    } catch (error) {
+      console.error('Get inventory report error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi server'
+      });
+    }
+  }
+
+  // Báo cáo doanh thu
+  async getRevenueReport(req, res) {
+    try {
+      const { date } = req.query; // Format: YYYY-MM-DD hoặc YYYY-MM hoặc YYYY
+
+      let dateCondition = '';
+      let params = [];
+      let groupBy = '';
+
+      if (date) {
+        if (date.length === 4) {
+          // Năm - nhóm theo tháng
+          dateCondition = 'WHERE YEAR(o.created_at) = ?';
+          groupBy = 'GROUP BY DATE_FORMAT(o.created_at, "%Y-%m")';
+          params.push(date);
+        } else if (date.length === 7) {
+          // Tháng - nhóm theo ngày
+          dateCondition = 'WHERE DATE_FORMAT(o.created_at, "%Y-%m") = ?';
+          groupBy = 'GROUP BY DATE(o.created_at)';
+          params.push(date);
+        } else if (date.length === 10) {
+          // Ngày - nhóm theo giờ
+          dateCondition = 'WHERE DATE(o.created_at) = ?';
+          groupBy = 'GROUP BY HOUR(o.created_at)';
+          params.push(date);
+        }
+      } else {
+        // Mặc định nhóm theo ngày
+        groupBy = 'GROUP BY DATE(o.created_at)';
+      }
+
+      const [revenue] = await pool.execute(`
+        SELECT 
+          ${date && date.length === 10 
+            ? 'HOUR(o.created_at) as period, CONCAT(HOUR(o.created_at), ":00") as period_label'
+            : date && date.length === 4
+            ? 'DATE_FORMAT(o.created_at, "%Y-%m") as period, DATE_FORMAT(o.created_at, "%m/%Y") as period_label'
+            : 'DATE(o.created_at) as period, DATE_FORMAT(o.created_at, "%d/%m/%Y") as period_label'
+          },
+          COUNT(*) as order_count,
+          SUM(o.final_amount) as total_revenue,
+          SUM(o.total_amount) as total_amount,
+          SUM(o.discount_amount) as total_discount,
+          SUM(o.shipping_fee) as total_shipping
+        FROM orders o
+        WHERE o.order_status = 'completed' AND o.payment_status = 'paid'
+        ${dateCondition ? 'AND ' + dateCondition.replace('WHERE', '') : ''}
+        ${groupBy}
+        ORDER BY period ASC
+      `, params);
+
+      res.json({
+        success: true,
+        data: revenue.map(item => ({
+          period: item.period,
+          period_label: item.period_label,
+          order_count: item.order_count,
+          total_revenue: parseFloat(item.total_revenue) || 0,
+          total_amount: parseFloat(item.total_amount) || 0,
+          total_discount: parseFloat(item.total_discount) || 0,
+          total_shipping: parseFloat(item.total_shipping) || 0,
+        }))
+      });
+    } catch (error) {
+      console.error('Get revenue report error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi server'
+      });
+    }
+  }
+
+  // Xuất Excel báo cáo tồn kho
+  async exportInventoryExcel(req, res) {
+    try {
+      const { date } = req.query;
+
+      // Lấy dữ liệu báo cáo tồn kho
+      let dateCondition = '';
+      let params = [];
+
+      if (date) {
+        if (date.length === 4) {
+          dateCondition = 'WHERE YEAR(pa.updated_at) = ?';
+          params.push(date);
+        } else if (date.length === 7) {
+          dateCondition = 'WHERE DATE_FORMAT(pa.updated_at, "%Y-%m") = ?';
+          params.push(date);
+        } else if (date.length === 10) {
+          dateCondition = 'WHERE DATE(pa.updated_at) = ?';
+          params.push(date);
+        }
+      }
+
+      const [inventory] = await pool.execute(`
+        SELECT 
+          p.name as 'Tên sản phẩm',
+          p.sku as 'SKU',
+          COALESCE(pa.size, '-') as 'Size',
+          COALESCE(pa.color, '-') as 'Màu',
+          pa.stock_quantity as 'Số lượng tồn',
+          COALESCE(pa.sku_variant, '-') as 'SKU biến thể',
+          p.price as 'Giá',
+          COALESCE(p.sale_price, '-') as 'Giá khuyến mãi',
+          DATE_FORMAT(pa.updated_at, '%d/%m/%Y %H:%i') as 'Cập nhật lúc'
+        FROM product_attributes pa
+        LEFT JOIN products p ON pa.product_id = p.id
+        ${dateCondition}
+        ORDER BY p.name ASC, pa.size ASC, pa.color ASC
+      `, params);
+
+      // Tạo workbook
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(inventory);
+
+      // Điều chỉnh độ rộng cột
+      const colWidths = [
+        { wch: 30 }, // Tên sản phẩm
+        { wch: 15 }, // SKU
+        { wch: 10 }, // Size
+        { wch: 15 }, // Màu
+        { wch: 15 }, // Số lượng tồn
+        { wch: 15 }, // SKU biến thể
+        { wch: 15 }, // Giá
+        { wch: 15 }, // Giá khuyến mãi
+        { wch: 20 }, // Cập nhật lúc
+      ];
+      worksheet['!cols'] = colWidths;
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Báo cáo tồn kho');
+
+      // Tạo buffer
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+      // Tên file
+      const fileName = `bao_cao_ton_kho_${date || 'all'}_${Date.now()}.xlsx`;
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.send(buffer);
+    } catch (error) {
+      console.error('Export inventory Excel error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Lỗi server'
+      });
+    }
+  }
+
+  // Xuất Excel báo cáo doanh thu
+  async exportRevenueExcel(req, res) {
+    try {
+      const { date } = req.query;
+
+      let dateCondition = '';
+      let params = [];
+      let groupBy = '';
+
+      if (date) {
+        if (date.length === 4) {
+          dateCondition = 'WHERE YEAR(o.created_at) = ?';
+          groupBy = 'GROUP BY DATE_FORMAT(o.created_at, "%Y-%m")';
+          params.push(date);
+        } else if (date.length === 7) {
+          dateCondition = 'WHERE DATE_FORMAT(o.created_at, "%Y-%m") = ?';
+          groupBy = 'GROUP BY DATE(o.created_at)';
+          params.push(date);
+        } else if (date.length === 10) {
+          dateCondition = 'WHERE DATE(o.created_at) = ?';
+          groupBy = 'GROUP BY HOUR(o.created_at)';
+          params.push(date);
+        }
+      } else {
+        groupBy = 'GROUP BY DATE(o.created_at)';
+      }
+
+      const [revenue] = await pool.execute(`
+        SELECT 
+          ${date && date.length === 10 
+            ? 'CONCAT(HOUR(o.created_at), ":00") as \'Thời gian\''
+            : date && date.length === 4
+            ? 'DATE_FORMAT(o.created_at, "%m/%Y") as \'Tháng\''
+            : 'DATE_FORMAT(o.created_at, "%d/%m/%Y") as \'Ngày\''
+          },
+          COUNT(*) as 'Số đơn hàng',
+          SUM(o.final_amount) as 'Tổng doanh thu',
+          SUM(o.total_amount) as 'Tổng giá trị',
+          SUM(o.discount_amount) as 'Tổng giảm giá',
+          SUM(o.shipping_fee) as 'Tổng phí vận chuyển'
+        FROM orders o
+        WHERE o.order_status = 'completed' AND o.payment_status = 'paid'
+        ${dateCondition ? 'AND ' + dateCondition.replace('WHERE', '') : ''}
+        ${groupBy}
+        ORDER BY ${date && date.length === 10 ? 'HOUR(o.created_at)' : date && date.length === 4 ? 'DATE_FORMAT(o.created_at, "%Y-%m")' : 'DATE(o.created_at)'} ASC
+      `, params);
+
+      // Tạo workbook
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(revenue);
+
+      // Điều chỉnh độ rộng cột
+      const colWidths = [
+        { wch: 15 }, // Thời gian/Ngày/Tháng
+        { wch: 15 }, // Số đơn hàng
+        { wch: 20 }, // Tổng doanh thu
+        { wch: 20 }, // Tổng giá trị
+        { wch: 20 }, // Tổng giảm giá
+        { wch: 20 }, // Tổng phí vận chuyển
+      ];
+      worksheet['!cols'] = colWidths;
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Báo cáo doanh thu');
+
+      // Tạo buffer
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+      // Tên file
+      const fileName = `bao_cao_doanh_thu_${date || 'all'}_${Date.now()}.xlsx`;
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.send(buffer);
+    } catch (error) {
+      console.error('Export revenue Excel error:', error);
       res.status(500).json({
         success: false,
         message: 'Lỗi server'
