@@ -224,7 +224,7 @@ export const ProfilePage: React.FC = () => {
                       Thông tin cá nhân
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-
+                    
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Box>
                         <Typography variant="body2" color="text.secondary">
@@ -234,7 +234,7 @@ export const ProfilePage: React.FC = () => {
                           {profile.first_name || ''} {profile.last_name || ''}
                         </Typography>
                       </Box>
-
+                      
                       {/* Giới tính và Ngày sinh không có trong database schema */}
                     </Box>
                   </CardContent>
@@ -250,7 +250,7 @@ export const ProfilePage: React.FC = () => {
                       Thông tin liên hệ
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-
+                    
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Box>
                         <Typography variant="body2" color="text.secondary">
@@ -260,7 +260,7 @@ export const ProfilePage: React.FC = () => {
                           {profile.email}
                         </Typography>
                       </Box>
-
+                      
                       <Box>
                         <Typography variant="body2" color="text.secondary">
                           Số điện thoại
@@ -284,7 +284,7 @@ export const ProfilePage: React.FC = () => {
                     Địa chỉ
                   </Typography>
                   <Divider sx={{ mb: 2 }} />
-
+                  
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
                       <Box sx={{ flex: 1 }}>
@@ -295,7 +295,7 @@ export const ProfilePage: React.FC = () => {
                           {profile.address || 'Chưa cập nhật'}
                         </Typography>
                       </Box>
-
+                      
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" color="text.secondary">
                           Tỉnh/Thành phố
@@ -305,7 +305,7 @@ export const ProfilePage: React.FC = () => {
                         </Typography>
                       </Box>
                     </Box>
-
+                    
                     <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" color="text.secondary">
@@ -315,7 +315,7 @@ export const ProfilePage: React.FC = () => {
                           {profile.district || 'Chưa cập nhật'}
                         </Typography>
                       </Box>
-
+                      
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" color="text.secondary">
                           Phường/Xã
@@ -325,7 +325,7 @@ export const ProfilePage: React.FC = () => {
                         </Typography>
                       </Box>
                     </Box>
-
+                    
                     <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" color="text.secondary">
@@ -335,7 +335,7 @@ export const ProfilePage: React.FC = () => {
                           {profile.postal_code || 'Chưa cập nhật'}
                         </Typography>
                       </Box>
-
+                      
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" color="text.secondary">
                           Quốc gia
@@ -360,7 +360,7 @@ export const ProfilePage: React.FC = () => {
                       Lịch sử mua hàng gần đây
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
-
+                    
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {profile.recent_orders.map((order) => (
                         <Box key={order.id} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
@@ -368,8 +368,8 @@ export const ProfilePage: React.FC = () => {
                             <Typography variant="subtitle1" fontWeight="bold">
                               {order.order_code}
                             </Typography>
-                            <Chip
-                              label={order.status}
+                            <Chip 
+                              label={order.status} 
                               color={order.status === 'delivered' ? 'success' : 'primary'}
                               size="small"
                             />
@@ -406,9 +406,9 @@ export const ProfilePage: React.FC = () => {
       </TabPanel>
 
       <TabPanel value={tabValue} index={1}>
-        <PasswordChangeForm
+        <PasswordChangeForm 
           onSuccess={handlePasswordChange}
-          onCancel={() => { }}
+          onCancel={() => {}} 
         />
       </TabPanel>
     </Container>

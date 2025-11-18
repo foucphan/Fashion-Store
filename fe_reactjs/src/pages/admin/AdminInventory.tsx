@@ -128,8 +128,8 @@ export const AdminInventory: React.FC = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" fontWeight="bold">
-          Quản lý kho hàng
-        </Typography>
+        Quản lý kho hàng
+      </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <FormControl size="small" sx={{ minWidth: 200 }}>
             <InputLabel>Lọc</InputLabel>

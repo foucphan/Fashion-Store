@@ -108,9 +108,9 @@ export const AdminBrands: React.FC = () => {
               setBrandFormOpen(true);
             }}
           >
-            Thêm thương hiệu
-          </Button>
-        </Box>
+          Thêm thương hiệu
+        </Button>
+      </Box>
       </Box>
 
       {/* Snackbar notifications */}

@@ -30,6 +30,8 @@ import { AdminCategories } from './pages/admin/AdminCategories';
 import { AdminBrands } from './pages/admin/AdminBrands';
 import { AdminInventory } from './pages/admin/AdminInventory';
 import { AdminAnalytics } from './pages/admin/AdminAnalytics';
+import { AdminNotifications } from './pages/admin/AdminNotifications';
+import { AdminPromotions } from './pages/admin/AdminPromotions';
 
 // Tạo theme Material-UI
 const theme = createTheme({
@@ -157,6 +159,8 @@ function App() {
                   <Route path="brands" element={<AdminBrands />} />
                   <Route path="inventory" element={<AdminInventory />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
+                  <Route path="promotions" element={<AdminPromotions />} />
                 </Route>
 
                 {/* Catch all route */}

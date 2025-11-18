@@ -48,7 +48,9 @@ export const CheckoutPage: React.FC = () => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [completedPaymentMethod, setCompletedPaymentMethod] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isVNPayRedirecting, setIsVNPayRedirecting] = useState(false);
 
   useEffect(() => {
     refreshCart();
@@ -69,12 +71,19 @@ export const CheckoutPage: React.FC = () => {
 
   const handlePaymentSubmit = (data: any) => {
     setPaymentInfo(data);
+    setOrderId(null);
+    setCompletedPaymentMethod(null);
+    setIsVNPayRedirecting(false);
     handleNext();
   };
 
   const handlePlaceOrder = async () => {
     try {
+      setError(null);
       setIsProcessing(true);
+      setOrderId(null);
+      setCompletedPaymentMethod(null);
+      setIsVNPayRedirecting(false);
       
       const orderData = {
         items: cart.items.map(item => ({
@@ -94,7 +103,6 @@ export const CheckoutPage: React.FC = () => {
       };
 
       const response = await orderService.createOrder(orderData);
-      setOrderId(response.data.order_number);
 
       // Nếu thanh toán bằng VNPay, tạo URL thanh toán
       if (paymentInfo.method === 'vnpay') {
@@ -106,10 +114,11 @@ export const CheckoutPage: React.FC = () => {
         };
 
         const vnpayResponse = await vnpayService.createPaymentUrl(vnpayData);
-        
+
         console.log('VNPay response:', vnpayResponse);
-        
-        if (vnpayResponse.success) {
+
+        if (vnpayResponse.success && vnpayResponse.data?.paymentUrl) {
+          setIsVNPayRedirecting(true);
           // Chuyển hướng đến VNPay
           console.log('Redirecting to VNPay URL:', vnpayResponse.data.paymentUrl);
           vnpayService.redirectToVNPay(vnpayResponse.data.paymentUrl);
@@ -118,10 +127,14 @@ export const CheckoutPage: React.FC = () => {
           throw new Error(vnpayResponse.message || 'Không thể tạo URL thanh toán VNPay');
         }
       }
+
+      setOrderId(response.data.order_number);
+      setCompletedPaymentMethod(paymentInfo.method);
       
     } catch (error: any) {
       console.error('Error placing order:', error);
       setError(error.message || 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+      setIsVNPayRedirecting(false);
     } finally {
       setIsProcessing(false);
     }
@@ -223,7 +236,17 @@ export const CheckoutPage: React.FC = () => {
           {activeStep === 2 && (
             <Paper sx={{ p: 3 }}>
               <Box sx={{ textAlign: 'center', py: 4 }}>
-                {orderId ? (
+                {isVNPayRedirecting ? (
+                  <>
+                    <CircularProgress size={64} sx={{ mb: 3 }} />
+                    <Typography variant="h5" gutterBottom>
+                      Đang chuyển hướng đến VNPay...
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Vui lòng không đóng trình duyệt cho đến khi hoàn tất thanh toán.
+                    </Typography>
+                  </>
+                ) : orderId && completedPaymentMethod !== 'vnpay' ? (
                   <>
                     <CheckCircle sx={{ fontSize: 64, color: 'success.main', mb: 2 }} />
                     <Typography variant="h5" gutterBottom>

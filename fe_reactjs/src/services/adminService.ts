@@ -46,6 +46,38 @@ export const adminService = {
     return response.data.data;
   },
 
+  async getRevenueChart(period: number = 30) {
+    const response = await apiClient.get('/admin/revenue-chart', { params: { period } });
+    return response.data.data;
+  },
+
+  // Reports
+  async getInventoryReport(date?: string) {
+    const response = await apiClient.get('/admin/reports/inventory', { params: { date } });
+    return response.data.data;
+  },
+
+  async getRevenueReport(date?: string) {
+    const response = await apiClient.get('/admin/reports/revenue', { params: { date } });
+    return response.data.data;
+  },
+
+  async exportInventoryExcel(date?: string) {
+    const response = await apiClient.get('/admin/reports/inventory/export', { 
+      params: { date },
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
+  async exportRevenueExcel(date?: string) {
+    const response = await apiClient.get('/admin/reports/revenue/export', { 
+      params: { date },
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+
   // Products
   async getAllProducts(params?: any) {
     const response = await apiClient.get('/products', { params });
@@ -210,6 +242,53 @@ export const adminService = {
 
   async updateStockQuantity(attributeId: number, stock_quantity: number) {
     const response = await apiClient.put(`/products/attributes/${attributeId}/stock`, { stock_quantity });
+    return response.data;
+  },
+
+  // Notifications
+  async getAllNotifications(params?: any) {
+    const response = await apiClient.get('/admin/notifications', { params });
+    return response.data;
+  },
+
+  async createNotification(notificationData: any) {
+    const response = await apiClient.post('/admin/notifications', notificationData);
+    return response.data;
+  },
+
+  async updateNotification(id: number, notificationData: any) {
+    const response = await apiClient.put(`/admin/notifications/${id}`, notificationData);
+    return response.data;
+  },
+
+  async deleteNotification(id: number) {
+    const response = await apiClient.delete(`/admin/notifications/${id}`);
+    return response.data;
+  },
+
+  // Coupons/Promotions
+  async getAllCoupons(params?: any) {
+    const response = await apiClient.get('/admin/coupons', { params });
+    return response.data;
+  },
+
+  async getCouponById(id: number) {
+    const response = await apiClient.get(`/admin/coupons/${id}`);
+    return response.data.data;
+  },
+
+  async createCoupon(couponData: any) {
+    const response = await apiClient.post('/admin/coupons', couponData);
+    return response.data;
+  },
+
+  async updateCoupon(id: number, couponData: any) {
+    const response = await apiClient.put(`/admin/coupons/${id}`, couponData);
+    return response.data;
+  },
+
+  async deleteCoupon(id: number) {
+    const response = await apiClient.delete(`/admin/coupons/${id}`);
     return response.data;
   },
 };

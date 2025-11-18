@@ -7,6 +7,10 @@ import {
   CardContent,
   CircularProgress,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   ShoppingBag,
@@ -14,6 +18,16 @@ import {
   People,
   AttachMoney,
 } from '@mui/icons-material';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { adminService, AdminStats } from '../../services/adminService';
 
 const StatCard = ({ title, value, icon }: any) => (
@@ -43,14 +57,25 @@ const StatCard = ({ title, value, icon }: any) => (
   </Card>
 );
 
+interface RevenueData {
+  date: string;
+  dateLabel: string;
+  revenue: number;
+  orderCount: number;
+}
+
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [period, setPeriod] = useState<number>(30);
 
   useEffect(() => {
     loadStats();
-  }, []);
+    loadRevenueChart();
+  }, [period]);
 
   const loadStats = async () => {
     try {
@@ -63,6 +88,18 @@ export const AdminDashboard: React.FC = () => {
       setError(err.response?.data?.message || 'Không thể tải thống kê');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRevenueChart = async () => {
+    try {
+      setChartLoading(true);
+      const data = await adminService.getRevenueChart(period);
+      setRevenueData(data);
+    } catch (err: any) {
+      console.error('Error loading revenue chart:', err);
+    } finally {
+      setChartLoading(false);
     }
   };
 
@@ -110,12 +147,106 @@ export const AdminDashboard: React.FC = () => {
 
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
           <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2, flex: 2 }}>
-            <Typography variant="h6" gutterBottom fontWeight="bold">
-              Biểu đồ doanh thu
-            </Typography>
-            <Box sx={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography color="textSecondary">Biểu đồ sẽ được hiển thị ở đây</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" fontWeight="bold">
+                Biểu đồ doanh thu
+              </Typography>
+              <FormControl size="small" sx={{ minWidth: 150 }}>
+                <InputLabel>Khoảng thời gian</InputLabel>
+                <Select
+                  value={period}
+                  label="Khoảng thời gian"
+                  onChange={(e) => setPeriod(e.target.value as number)}
+                >
+                  <MenuItem value={7}>7 ngày gần nhất</MenuItem>
+                  <MenuItem value={30}>30 ngày gần nhất</MenuItem>
+                  <MenuItem value={90}>90 ngày gần nhất</MenuItem>
+                  <MenuItem value={180}>180 ngày gần nhất</MenuItem>
+                </Select>
+              </FormControl>
             </Box>
+            {chartLoading ? (
+              <Box sx={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CircularProgress />
+              </Box>
+            ) : revenueData.length === 0 ? (
+              <Box sx={{ height: 400, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography color="textSecondary">Không có dữ liệu doanh thu</Typography>
+              </Box>
+            ) : (
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={revenueData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="dateLabel" 
+                    tick={{ fontSize: 12 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip 
+                    formatter={(value: number, name: string) => {
+                      if (name === 'revenue') {
+                        return [`${value.toLocaleString('vi-VN')} ₫`, 'Doanh thu'];
+                      }
+                      return [value, 'Số đơn hàng'];
+                    }}
+                    labelFormatter={(label) => `Ngày: ${label}`}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#1976d2" 
+                    strokeWidth={2}
+                    name="Doanh thu"
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="orderCount" 
+                    stroke="#dc004e" 
+                    strokeWidth={2}
+                    name="Số đơn hàng"
+                    dot={{ r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+            {revenueData.length > 0 && (
+              <Box sx={{ mt: 2, display: 'flex', gap: 3, justifyContent: 'center' }}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" color="textSecondary">
+                    Tổng doanh thu ({period} ngày)
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold" color="primary">
+                    {revenueData.reduce((sum, item) => sum + item.revenue, 0).toLocaleString('vi-VN')} ₫
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" color="textSecondary">
+                    Tổng số đơn hàng
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold" color="secondary">
+                    {revenueData.reduce((sum, item) => sum + item.orderCount, 0)}
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" color="textSecondary">
+                    Trung bình/ngày
+                  </Typography>
+                  <Typography variant="h6" fontWeight="bold">
+                    {Math.round(revenueData.reduce((sum, item) => sum + item.revenue, 0) / revenueData.length).toLocaleString('vi-VN')} ₫
+                  </Typography>
+                </Box>
+              </Box>
+            )}
           </Paper>
 
           <Paper sx={{ p: 3, borderRadius: 2, boxShadow: 2, flex: 1 }}>

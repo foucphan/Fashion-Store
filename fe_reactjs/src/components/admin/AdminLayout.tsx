@@ -33,6 +33,7 @@ import {
   Notifications,
   AccountCircle,
   Inventory,
+  Campaign,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -46,6 +47,8 @@ const menuItems = [
   { text: 'Danh mục', icon: <Category />, path: '/admin/categories' },
   { text: 'Thương hiệu', icon: <LocalOffer />, path: '/admin/brands' },
   { text: 'Kho hàng', icon: <Inventory />, path: '/admin/inventory' },
+  { text: 'Khuyến mãi', icon: <Campaign />, path: '/admin/promotions' },
+  { text: 'Thông báo', icon: <Notifications />, path: '/admin/notifications' },
   { text: 'Thống kê', icon: <BarChart />, path: '/admin/analytics' },
 ];
 

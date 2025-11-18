@@ -19,7 +19,7 @@ apiClient.interceptors.request.use(
     console.log('🚀 API Request - URL:', config.url);
     console.log('🚀 API Request - Method:', config.method);
     console.log('🚀 API Request - Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'null');
-
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
       console.log('✅ API Request - Authorization header set');
@@ -45,16 +45,16 @@ apiClient.interceptors.response.use(
     console.log('❌ API Response Error - URL:', error.config?.url);
     console.log('❌ API Response Error - Message:', error.message);
     console.log('❌ API Response Error - Response data:', error.response?.data);
-
+    
     if (error.response?.status === 401) {
       console.warn('🔐 Token expired or invalid, clearing token and redirecting to login');
       console.warn('🔐 Error details:', error.response?.data);
-
+      
       localStorage.removeItem('token');
-
+      
       // Dispatch custom event to notify AuthContext
       window.dispatchEvent(new CustomEvent('auth:logout'));
-
+      
       // Small delay before redirect to allow context to update
       setTimeout(() => {
         console.log('🔐 Redirecting to login page...');

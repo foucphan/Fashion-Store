@@ -8,9 +8,9 @@ interface AuthGuardProps {
   requireAuth?: boolean;
 }
 
-export const AuthGuard: React.FC<AuthGuardProps> = ({
-  children,
-  requireAuth = true
+export const AuthGuard: React.FC<AuthGuardProps> = ({ 
+  children, 
+  requireAuth = true 
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
@@ -32,12 +32,12 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
+      <Box 
+        sx={{ 
+          display: 'flex', 
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems: 'center', 
+          justifyContent: 'center', 
           minHeight: '100vh',
           gap: 2
         }}
