@@ -94,6 +94,9 @@ const createOrder = async (req, res) => {
 
       // Tạo chi tiết đơn hàng
       for (const item of items) {
+        const itemPrice = item.product?.sale_price || item.product?.price || 0;
+        const itemTotal = itemPrice * item.quantity;
+        
         await connection.execute(`
           INSERT INTO order_items (
             order_id,
@@ -103,8 +106,9 @@ const createOrder = async (req, res) => {
             product_sku,
             product_image,
             price,
-            quantity
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            quantity,
+            total_amount
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
           orderId,
           item.product_id,
@@ -112,8 +116,9 @@ const createOrder = async (req, res) => {
           item.product?.name || 'Sản phẩm',
           item.product?.sku || `SKU-${item.product_id}`,
           item.product?.primary_image || '',
-          item.product?.sale_price || item.product?.price || 0,
-          item.quantity
+          itemPrice,
+          item.quantity,
+          itemTotal
         ]);
       }
 
