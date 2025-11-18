@@ -34,6 +34,8 @@ app.use('/api/profile', require('./routes/profile'));
 app.use('/api/orders', require('./routes/order'));
 app.use('/api/vnpay', require('./routes/vnpay'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/admin/notifications', require('./routes/notification'));
+app.use('/api/admin/coupons', require('./routes/coupon'));
 
 // Health check
 app.get('/api/health', (req, res) => {

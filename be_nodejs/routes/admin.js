@@ -9,6 +9,13 @@ router.use(requireAdmin);
 
 // Dashboard stats
 router.get('/stats', adminController.getStats);
+router.get('/revenue-chart', adminController.getRevenueChart);
+
+// Reports
+router.get('/reports/inventory', adminController.getInventoryReport);
+router.get('/reports/revenue', adminController.getRevenueReport);
+router.get('/reports/inventory/export', adminController.exportInventoryExcel);
+router.get('/reports/revenue/export', adminController.exportRevenueExcel);
 
 // Orders
 router.get('/orders', adminController.getAllOrders);
